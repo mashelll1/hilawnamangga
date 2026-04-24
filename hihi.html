@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ms. Galcon</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple-deepest: #1a0a2e;
+    --purple-deep: #2d1b5e;
+    --purple-dark: #4a2080;
+    --purple-mid: #6b3fa0;
+    --purple-main: #8b5fc0;
+    --purple-light: #b08de0;
+    --purple-pale: #d4bbf0;
+    --purple-ghost: #ede0fa;
+    --purple-blush: #f7f0ff;
+    --ink: #2d1b5e;
+    --ink-light: #5a3a8a;
+    --paper: #faf7ff;
+    --paper-warm: #f5f0fc;
+    --ruled-line: rgba(107, 63, 160, 0.15);
+    --shadow-deep: rgba(26, 10, 46, 0.5);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--purple-deepest);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Crimson Pro', Georgia, serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Background atmosphere */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(107,63,160,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(45,27,94,0.4) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(26,10,46,1) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* Floating dust particles */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--purple-light);
+    opacity: 0;
+    animation: float-particle linear infinite;
+  }
+
+  @keyframes float-particle {
+    0% { opacity: 0; transform: translateY(100vh) scale(0); }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.1; }
+    100% { opacity: 0; transform: translateY(-20px) scale(1); }
+  }
+
+  /* BOOK WRAPPER */
+  .book-scene {
+    perspective: 2000px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .book {
+    width: 480px;
+    height: 640px;
+    position: relative;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.7)) drop-shadow(0 0 40px rgba(107,63,160,0.3));
+  }
+
+  /* Book spine / back cover */
+  .book-spine {
+    position: absolute;
+    left: -18px;
+    top: 4px;
+    width: 18px;
+    height: 632px;
+    background: linear-gradient(to right, var(--purple-deepest), var(--purple-dark));
+    border-radius: 3px 0 0 3px;
+    transform: rotateY(-90deg) translateX(-9px);
+    transform-origin: right center;
+    box-shadow: -4px 0 8px rgba(0,0,0,0.4);
+  }
+
+  /* PAGES CONTAINER */
+  .pages-container {
+    width: 480px;
+    height: 640px;
+    position: relative;
+  }
+
+  /* Individual page */
+  .page {
+    position: absolute;
+    width: 480px;
+    height: 640px;
+    background: var(--paper);
+    border-radius: 2px 8px 8px 2px;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .page.flipped {
+    transform: rotateY(-180deg);
+  }
+
+  /* Page stacking depth */
+  .page:nth-child(1) { z-index: 10; }
+  .page:nth-child(2) { z-index: 9; background: #f8f3fe; }
+  .page:nth-child(3) { z-index: 8; background: #f6f0fd; }
+  .page:nth-child(4) { z-index: 7; background: #f4edfb; }
+  .page:nth-child(5) { z-index: 6; background: #f2eafa; }
+  .page:nth-child(6) { z-index: 5; background: #f0e8f9; }
+
+  /* Page shadow illusion stacking */
+  .page::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(107,63,160,0.08), transparent);
+    pointer-events: none;
+  }
+
+  /* RULED LINES */
+  .page-content {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    overflow: hidden;
+  }
+
+  .ruled-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 31px,
+      var(--ruled-line) 31px,
+      var(--ruled-line) 32px
+    );
+    background-position: 0 56px;
+  }
+
+  /* Left margin line */
+  .ruled-lines::before {
+    content: '';
+    position: absolute;
+    left: 60px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(176, 141, 224, 0.25);
+  }
+
+  /* Binding holes */
+  .binding-holes {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 40px 0;
+    align-items: center;
+    background: linear-gradient(to right, rgba(107,63,160,0.05), transparent);
+    z-index: 2;
+  }
+
+  .hole {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--purple-deepest);
+    box-shadow:
+      inset 0 2px 4px rgba(0,0,0,0.5),
+      0 0 0 2px rgba(107,63,160,0.2);
+  }
+
+  /* Page inner content */
+  .page-inner {
+    position: absolute;
+    left: 40px;
+    right: 16px;
+    top: 0;
+    bottom: 0;
+    padding: 20px 20px 20px 28px;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* Page number */
+  .page-num {
+    position: absolute;
+    bottom: 14px;
+    right: 24px;
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: var(--purple-light);
+    opacity: 0.7;
+  }
+
+  /* BACK of page (when flipped) */
+  .page-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    background: var(--paper-warm);
+    border-radius: 8px 2px 2px 8px;
+    overflow: hidden;
+  }
+
+  .page-back .ruled-lines {
+    opacity: 0.6;
+  }
+
+  /* COVER PAGE */
+  .cover-page {
+    background: linear-gradient(145deg, var(--purple-dark) 0%, var(--purple-deepest) 100%) !important;
+    border-radius: 2px 8px 8px 2px;
+  }
+
+  .cover-page .page-content {
+    background: linear-gradient(145deg, var(--purple-dark), var(--purple-deepest));
+  }
+
+  .cover-page .ruled-lines { display: none; }
+
+  .cover-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .cover-ornament {
+    font-size: 60px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(176,141,224,0.8));
+    animation: float-ornament 4s ease-in-out infinite;
+  }
+
+  @keyframes float-ornament {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .cover-title {
+    font-family: 'Caveat', cursive;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--purple-pale);
+    line-height: 1.2;
+    margin-bottom: 12px;
+    text-shadow: 0 0 30px rgba(176,141,224,0.5);
+  }
+
+  .cover-subtitle {
+    font-family: 'Crimson Pro', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--purple-light);
+    margin-bottom: 40px;
+    opacity: 0.85;
+  }
+
+  .cover-border {
+    position: absolute;
+    inset: 16px;
+    border: 1px solid rgba(176,141,224,0.2);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .cover-border::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(176,141,224,0.1);
+    border-radius: 2px;
+  }
+
+  /* Decorative corners */
+  .corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: rgba(176,141,224,0.5);
+    border-style: solid;
+  }
+  .corner-tl { top: 24px; left: 24px; border-width: 2px 0 0 2px; }
+  .corner-tr { top: 24px; right: 24px; border-width: 2px 2px 0 0; }
+  .corner-bl { bottom: 24px; left: 24px; border-width: 0 0 2px 2px; }
+  .corner-br { bottom: 24px; right: 24px; border-width: 0 2px 2px 0; }
+
+  .flip-hint {
+    position: absolute;
+    bottom: 50px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--purple-light);
+    opacity: 0.7;
+    animation: pulse-hint 2s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @keyframes pulse-hint {
+    0%, 100% { opacity: 0.5; transform: translateX(0); }
+    50% { opacity: 1; transform: translateX(5px); }
+  }
+
+  /* TYPOGRAPHY for pages */
+  .page-heading {
+    font-family: 'Caveat', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--purple-dark);
+    margin-bottom: 20px;
+    margin-top: 10px;
+    line-height: 32px;
+  }
+
+  .page-heading.small {
+    font-size: 22px;
+  }
+
+  .page-body {
+    font-family: 'Crimson Pro', serif;
+    font-size: 15.5px;
+    line-height: 32px;
+    color: var(--ink);
+    font-weight: 300;
+  }
+
+  .page-body p {
+    margin-bottom: 0;
+  }
+
+  /* Highlighted / colored text */
+  .highlight {
+    background: linear-gradient(120deg, rgba(176,141,224,0.3) 0%, rgba(176,141,224,0.15) 100%);
+    padding: 0 3px;
+    border-radius: 2px;
+  }
+
+  .italic { font-style: italic; }
+  .bold { font-weight: 600; }
+
+  /* Date stamp */
+  .date-stamp {
+    font-family: 'Caveat', cursive;
+    font-size: 13px;
+    color: var(--purple-light);
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+
+  /* Divider */
+  .page-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(107,63,160,0.3), transparent);
+    margin: 16px 0;
+  }
+
+  /* Photo page */
+  .photo-frame {
+    width: 100%;
+    height: 200px;
+    background:
+      linear-gradient(135deg, rgba(237, 224, 250, 0.08), rgba(212, 187, 240, 0.08)),
+      url('DD.PNG') center/cover no-repeat;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 3px 12px rgba(107,63,160,0.2),
+      0 0 0 1px rgba(176,141,224,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .photo-placeholder-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+    display: none;
+  }
+
+  .photo-placeholder-text {
+    font-family: 'Caveat', cursive;
+    font-size: 15px;
+    color: var(--purple-mid);
+    display: none;
+    font-style: italic;
+  }
+
+  .photo-caption {
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    color: var(--purple-mid);
+    text-align: center;
+    margin-top: -6px;
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+
+  /* Tape decorations */
+  .tape {
+    position: absolute;
+    width: 60px;
+    height: 22px;
+    background: rgba(176,141,224,0.35);
+    transform: rotate(-3deg);
+    top: -8px;
+    left: 50%;
+    margin-left: -30px;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(107,63,160,0.2);
+  }
+
+  .tape-right {
+    transform: rotate(2deg);
+    top: auto;
+    bottom: -8px;
+    right: 20px;
+    left: auto;
+    margin-left: 0;
+  }
+
+  /* Sticker decorations */
+  .sticker {
+    position: absolute;
+    font-size: 22px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  }
+
+  /* FINAL PAGE - Court question */
+  .court-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 30px 20px;
+    position: relative;
+  }
+
+  .heart-burst {
+    font-size: 64px;
+    margin-bottom: 20px;
+    animation: heartbeat 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(176,141,224,0.8));
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.2); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+    60% { transform: scale(1); }
+  }
+
+  .court-question {
+    font-family: 'Caveat', cursive;
+    font-size: 46px;
+    font-weight: 700;
+    color: var(--purple-dark);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .court-sub {
+    font-family: 'Crimson Pro', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--purple-mid);
+    margin-bottom: 36px;
+    opacity: 0.8;
+  }
+
+  .yes-buttons {
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-yes {
+    padding: 16px 52px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Caveat', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+  }
+
+  .btn-yes-main {
+    background: linear-gradient(135deg, var(--purple-mid), var(--purple-dark));
+    color: white;
+    box-shadow:
+      0 8px 24px rgba(107,63,160,0.4),
+      0 0 0 0 rgba(176,141,224,0.5);
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(107,63,160,0.4), 0 0 0 0 rgba(176,141,224,0.4); }
+    50% { box-shadow: 0 8px 32px rgba(107,63,160,0.6), 0 0 0 8px rgba(176,141,224,0); }
+  }
+
+  .btn-yes-main:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 32px rgba(107,63,160,0.5);
+  }
+
+  .btn-yes-also {
+    background: transparent;
+    color: var(--purple-mid);
+    border: 2px solid rgba(107,63,160,0.3);
+    font-size: 18px;
+    padding: 12px 40px;
+  }
+
+  .btn-yes-also:hover {
+    background: rgba(107,63,160,0.08);
+    border-color: rgba(107,63,160,0.6);
+    transform: translateY(-2px);
+  }
+
+  /* Confetti celebration */
+  .confetti-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+  }
+  .confetti-container.active { display: block; }
+
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    opacity: 0;
+  }
+
+  /* Yes response overlay */
+  .yes-response {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,10,46,0.92);
+    z-index: 9998;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+  }
+  .yes-response.active { display: flex; }
+
+  .yes-response-text {
+    font-family: 'Caveat', cursive;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--purple-pale);
+    animation: pop-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-shadow: 0 0 40px rgba(176,141,224,0.8);
+  }
+
+  .yes-response-sub {
+    font-family: 'Crimson Pro', serif;
+    font-size: 24px;
+    font-style: italic;
+    color: var(--purple-light);
+    margin-top: 16px;
+    animation: pop-in 0.6s 0.2s both cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .yes-hearts {
+    font-size: 48px;
+    margin-top: 20px;
+    animation: pop-in 0.6s 0.4s both cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.5) translateY(30px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* NAVIGATION */
+  .nav {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+
+  .nav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(176,141,224,0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(176,141,224,0.4);
+  }
+
+  .nav-dot.active {
+    background: var(--purple-light);
+    transform: scale(1.3);
+    box-shadow: 0 0 8px rgba(176,141,224,0.6);
+  }
+
+  /* Arrow buttons */
+  .nav-arrows {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 200px;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .arrow-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(107,63,160,0.2);
+    border: 1px solid rgba(176,141,224,0.3);
+    color: var(--purple-light);
+    font-size: 20px;
+    cursor: pointer;
+    pointer-events: all;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .arrow-btn:hover {
+    background: rgba(107,63,160,0.4);
+    transform: scale(1.1);
+  }
+
+  .arrow-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Page flip sound visual */
+  .flip-ripple {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(176,141,224,0.3);
+    top: 50%;
+    right: 0;
+    transform: translate(50%, -50%);
+    pointer-events: none;
+  }
+
+  .flip-ripple.animate {
+    animation: ripple-out 0.6s ease-out forwards;
+  }
+
+  @keyframes ripple-out {
+    to { width: 200px; height: 200px; opacity: 0; transform: translate(50%, -50%) scale(1); }
+  }
+
+  /* Scrollable long text */
+  .scrollable {
+    height: 410px;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+
+  .scrollable::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollable::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollable::-webkit-scrollbar-thumb {
+    background: rgba(176,141,224,0.4);
+    border-radius: 4px;
+  }
+
+  /* Washi tape on photo */
+  .photo-wrapper {
+    position: relative;
+    margin-bottom: 18px;
+  }
+
+  .washi {
+    position: absolute;
+    height: 18px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(176,141,224,0.5) 0px,
+      rgba(176,141,224,0.3) 6px,
+      rgba(176,141,224,0.5) 12px
+    );
+    border-radius: 2px;
+  }
+  .washi-top { top: -6px; left: 30px; right: 30px; transform: rotate(-1deg); }
+  .washi-bottom { bottom: -6px; left: 40px; right: 40px; transform: rotate(1deg); }
+
+  /* Stamp decoration */
+  .stamp {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    width: 56px;
+    height: 56px;
+    border: 2px solid rgba(107,63,160,0.4);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transform: rotate(8deg);
+    opacity: 0.7;
+    background: rgba(176,141,224,0.1);
+  }
+
+  /* Post-it sticky note effect */
+  .sticky {
+    background: linear-gradient(135deg, rgba(176,141,224,0.25), rgba(176,141,224,0.15));
+    padding: 12px 14px;
+    border-left: 3px solid var(--purple-light);
+    margin: 12px 0;
+    font-style: italic;
+    font-size: 14.5px;
+    border-radius: 0 4px 4px 0;
+    color: var(--ink-light);
+    line-height: 28px;
+  }
+
+  /* Page curl on hover */
+  .page:not(.flipped):hover::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 28px 28px;
+    border-color: transparent transparent var(--purple-pale) transparent;
+    filter: drop-shadow(-2px -2px 4px rgba(107,63,160,0.2));
+    z-index: 100;
+    transition: all 0.3s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- Atmospheric particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Main book -->
+<div class="book-scene">
+  <div class="book" id="book">
+    <div class="book-spine"></div>
+    <div class="pages-container" id="pagesContainer">
+
+      <!-- PAGE 1: COVER -->
+      <div class="page cover-page" id="page-0">
+        <div class="page-content">
+          <div class="cover-content">
+            <div class="cover-border"></div>
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+            <div class="cover-ornament">📓</div>
+            <div class="cover-title">Hello<br>Hehe</div>
+            <div class="cover-subtitle">~ try muna ~</div>
+            <div class="flip-hint">tap to open ›</div>
+          </div>
+        </div>
+        <div class="page-back">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div style="height:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; opacity:0.3;">
+              <div style="font-family:'Caveat',cursive; font-size:18px; color:var(--purple-mid); font-style:italic;">this side is blank 🌸</div>
+            </div>
+          </div>
+          <div class="page-num">i</div>
+        </div>
+      </div>
+
+      <!-- PAGE 2: Lorem ipsum / intro -->
+      <div class="page" id="page-1">
+        <div class="page-content">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">December 24, 2025</div>
+            <div class="page-heading"> Discord </div>
+            <div class="page-body">
+              <p>Hello, katze! :P </p>
+              <br>
+              <p>dwasdasd</p>
+              <br>
+              <div class="sticky">✦ Note to self: some things are worth keeping forever.</div>
+              <br>
+              <p>dffdfs</p>
+            </div>
+          </div>
+          <div class="page-num">1</div>
+        </div>
+        <div class="page-back">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">January 14, 2025</div>
+            <div class="page-heading small">Random Thoughts 💭</div>
+            <div class="page-body">
+              <p>Temporibus autem quibusdam et aut officiis debitis rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint molestiae non recusandae.</p>
+              <br>
+              <p>Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est.</p>
+              <br>
+              <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla.</p>
+            </div>
+            <div class="stamp">✉</div>
+          </div>
+          <div class="page-num">2</div>
+        </div>
+      </div>
+
+      <!-- PAGE 3: Photo page -->
+      <div class="page" id="page-2">
+        <div class="page-content">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">December 26, 2025</div>
+            <div class="page-heading">Deadly Delivery</div>
+            <div class="photo-wrapper">
+              <div class="washi washi-top"></div>
+              <div class="photo-frame">
+                <div class="photo-placeholder-icon">📷</div>
+                <div class="photo-placeholder-text">DD.png</div>
+              </div>
+              <div class="washi washi-bottom"></div>
+            </div>
+            <div class="photo-caption">~ a moment I want to keep ~</div>
+            <div class="page-body">
+              <p>first play together! :>></p>
+            </div>
+          </div>
+          <div class="page-num">3</div>
+        </div>
+        <div class="page-back">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">February 10, 2025</div>
+            <div class="page-heading small">More Photos 📸</div>
+            <div class="photo-wrapper" style="margin-bottom:12px;">
+              <div class="washi washi-top"></div>
+              <div class="photo-frame" style="height:150px;">
+                <div class="photo-placeholder-icon">🖼️</div>
+                <div class="photo-placeholder-text">[ another photo ]</div>
+              </div>
+            </div>
+            <div class="page-body">
+              <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione sequi nesciunt.</p>
+              <br>
+              <div class="sticky">✦ "the best things in life are the people we love, the places we've been, and the memories we've made."</div>
+            </div>
+          </div>
+          <div class="page-num">4</div>
+        </div>
+      </div>
+
+      <!-- PAGE 4: Long text page -->
+      <div class="page" id="page-3">
+        <div class="page-content">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">placeholder date</div>
+            <div class="page-heading">placeholder</div>
+            <div class="scrollable page-body">
+              <p></p>
+              <br>
+              <p></p>
+              <br>
+              <p></p>
+              <br>
+              <div class="sticky">✦ "In all the world, there is no heart for me like yours. In all the world, there is no love for you like mine."</div>
+              <br>
+              <p></p>
+              <br>
+              <p></p>
+              <br>
+              <p></p>
+              <br>
+              <p></p>
+            </div>
+          </div>
+          <div class="page-num">5</div>
+        </div>
+        <div class="page-back">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">March 15, 2025</div>
+            <div class="page-heading small">Things I Like ✨</div>
+            <div class="page-body">
+              <p>A small, incomplete list of things that bring me joy:</p>
+              <br>
+              <p>The sound of rain on a quiet afternoon. The particular shade of purple that appears just before sunset. The feeling of finishing a good book. Warm drinks on cold mornings. Handwritten notes. The way some songs feel like memories before you've even made them.</p>
+              <br>
+              <p>And lately — <span class="highlight italic">you</span>. You've made it onto the list too.</p>
+              <br>
+              <p>Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, quis nostrud exercitation ullamco.</p>
+            </div>
+          </div>
+          <div class="page-num">6</div>
+        </div>
+      </div>
+
+      <!-- PAGE 5: More lorem -->
+      <div class="page" id="page-4">
+        <div class="page-content">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">placeholder date</div>
+            <div class="page-heading">🌙</div>
+            <div class="page-body">
+              <p></p>
+              <br>
+              <p></p>
+              <br>
+              <div class="sticky">✦ Last page is next. Are you ready?</div>
+              <br>
+              <p></p>
+              <br>
+              <p></p>
+            </div>
+          </div>
+          <div class="page-num">7</div>
+        </div>
+        <div class="page-back">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="date-stamp">March 28, 2025</div>
+            <div class="page-heading small">Just One More Flip 🌷</div>
+            <div class="page-body">
+              <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores.</p>
+              <br>
+              <p>Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.</p>
+              <br>
+              <p>Temporibus autem quibusdam et aut officiis debitis eum rerum necessitatibus saepe eveniet ut et voluptates repudiandae.</p>
+            </div>
+          </div>
+          <div class="page-num">8</div>
+        </div>
+      </div>
+
+      <!-- PAGE 6: FINAL - "Jai, can I court you?" -->
+      <div class="page" id="page-5">
+        <div class="page-content">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div class="court-page">
+              <div class="heart-burst">💜</div>
+              <div class="court-question">Jai, can I court you?</div>
+              <div class="court-sub">~ HSKSKSJDSJD ~</div>
+              <div class="yes-buttons">
+                <button class="btn-yes btn-yes-main" onclick="handleYes('Yes, absolutely!')">Yes 💜</button>
+                <button class="btn-yes btn-yes-also" onclick="handleYes('Yes, of course!')">Yes, please 🌸</button>
+              </div>
+            </div>
+          </div>
+          <div class="page-num">♡</div>
+        </div>
+        <div class="page-back">
+          <div class="ruled-lines"></div>
+          <div class="binding-holes"><div class="hole"></div><div class="hole"></div><div class="hole"></div></div>
+          <div class="page-inner">
+            <div style="height:100%; display:flex; align-items:center; justify-content:center;">
+              <div style="font-family:'Caveat',cursive; font-size:20px; color:var(--purple-mid); font-style:italic; text-align:center; opacity:0.5;">~ fin ~</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pages-container -->
+  </div><!-- /book -->
+</div><!-- /book-scene -->
+
+<!-- Navigation -->
+<div class="nav" id="nav">
+  <div class="nav-dot active" onclick="goToPage(0)"></div>
+  <div class="nav-dot" onclick="goToPage(1)"></div>
+  <div class="nav-dot" onclick="goToPage(2)"></div>
+  <div class="nav-dot" onclick="goToPage(3)"></div>
+  <div class="nav-dot" onclick="goToPage(4)"></div>
+  <div class="nav-dot" onclick="goToPage(5)"></div>
+</div>
+
+<div class="nav-arrows">
+  <button class="arrow-btn" id="prevBtn" onclick="prevPage()" disabled>‹</button>
+  <button class="arrow-btn" id="nextBtn" onclick="nextPage()">›</button>
+</div>
+
+<!-- Yes response overlay -->
+<div class="yes-response" id="yesResponse">
+  <div class="yes-response-text" id="yesText">You said Yes! 🎉</div>
+  <div class="yes-response-sub">AAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH💜</div>
+  <div class="yes-hearts">💜 💜 💜</div>
+  <br><br>
+  <button onclick="document.getElementById('yesResponse').classList.remove('active')" style="font-family:'Caveat',cursive; font-size:16px; color:var(--purple-light); background:transparent; border:1px solid rgba(176,141,224,0.3); padding:10px 24px; border-radius:20px; cursor:pointer;">close 🌸</button>
+</div>
+
+<!-- Confetti -->
+<div class="confetti-container" id="confetti"></div>
+
+<script>
+  // ---- PARTICLES ----
+  const particlesEl = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 1;
+    p.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${Math.random() * 100}%;
+      animation-duration: ${Math.random() * 15 + 10}s;
+      animation-delay: ${Math.random() * 15}s;
+    `;
+    particlesEl.appendChild(p);
+  }
+
+  // ---- PAGE FLIP LOGIC ----
+  const pages = Array.from(document.querySelectorAll('.page'));
+  const navDots = Array.from(document.querySelectorAll('.nav-dot'));
+  let currentPage = 0;
+  const totalPages = pages.length;
+
+  // Set z-indices
+  function updateZIndex() {
+    pages.forEach((p, i) => {
+      if (i < currentPage) {
+        p.style.zIndex = i;
+      } else {
+        p.style.zIndex = totalPages - i;
+      }
+    });
+  }
+
+  function goToPage(target) {
+    if (target === currentPage) return;
+
+    if (target > currentPage) {
+      // flip forward
+      for (let i = currentPage; i < target; i++) {
+        pages[i].classList.add('flipped');
+      }
+    } else {
+      // flip back
+      for (let i = currentPage - 1; i >= target; i--) {
+        pages[i].classList.remove('flipped');
+      }
+    }
+
+    currentPage = target;
+    updateZIndex();
+    updateNav();
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages - 1) {
+      goToPage(currentPage + 1);
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 0) {
+      goToPage(currentPage - 1);
+    }
+  }
+
+  function updateNav() {
+    navDots.forEach((d, i) => d.classList.toggle('active', i === currentPage));
+    document.getElementById('prevBtn').disabled = currentPage === 0;
+    document.getElementById('nextBtn').disabled = currentPage === totalPages - 1;
+  }
+
+  // Click on page to advance
+  pages.forEach((page, i) => {
+    page.addEventListener('click', (e) => {
+      // Only if clicking the front face
+      if (!page.classList.contains('flipped') && i === currentPage) {
+        nextPage();
+      }
+    });
+  });
+
+  updateZIndex();
+
+  // ---- YES HANDLER ----
+  function handleYes(msg) {
+    launchConfetti();
+    document.getElementById('yesResponse').classList.add('active');
+  }
+
+  // ---- CONFETTI ----
+  function launchConfetti() {
+    const container = document.getElementById('confetti');
+    container.classList.add('active');
+    container.innerHTML = '';
+    const colors = ['#8b5fc0', '#b08de0', '#d4bbf0', '#6b3fa0', '#ede0fa', '#4a2080'];
+    const shapes = ['■', '●', '◆', '★', '♥'];
+
+    for (let i = 0; i < 80; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const shape = shapes[Math.floor(Math.random() * shapes.length)];
+      piece.textContent = shape;
+      piece.style.cssText = `
+        left: ${Math.random() * 100}%;
+        color: ${color};
+        font-size: ${Math.random() * 14 + 8}px;
+        animation: fall-${i} ${Math.random() * 2 + 2}s ease-in forwards;
+        animation-delay: ${Math.random() * 1.5}s;
+      `;
+      container.appendChild(piece);
+
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes fall-${i} {
+          0% { top: -20px; opacity: 1; transform: rotate(0deg) translateX(0); }
+          100% { top: 110vh; opacity: 0; transform: rotate(${Math.random()*720-360}deg) translateX(${Math.random()*200-100}px); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    setTimeout(() => {
+      container.classList.remove('active');
+    }, 5000);
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextPage();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevPage();
+  });
+</script>
+</body>
+</html>
